@@ -1,0 +1,76 @@
+---
+- hosts: all
+  remote_user: root
+  gather_facts: false
+  become: true
+  tasks:
+    - name: Update package cache
+      raw: apk update
+    - name: Install python
+      raw: apk add python
+    - name: Update Alpine Linux
+      apk:
+        update_cache: yes
+        upgrade: no
+        available: yes
+    - name: Install psycopg2
+      apk:
+        name: py-psycopg2
+        state: present
+    - name: Install postgresql
+      apk:
+        name: postgresql
+        state: present
+    - name: Install postgresql-contrib
+      apk:
+        name: postgresql-contrib
+        state: present
+    - name: Start postgresql service
+      service:
+        name: postgresql
+        state: started
+        enabled: true
+    - name: Configure postgresql listen address
+      lineinfile:
+        path: /var/lib/postgresql/11/data/postgresql.conf
+        line: "listen_addresses = '*'"
+        insertbefore: '^#listen_addresses '
+    - name: Configure postgresql remote connections
+      lineinfile:
+        path: /var/lib/postgresql/11/data/pg_hba.conf
+        line: 'host all all 0.0.0.0/0 md5'
+    - name: Restart postgresql service
+      service:
+        name: postgresql
+        state: restarted
+    - name: Add ~{projectDB} super user
+      postgresql_user:
+        name: ~{projectDBSuperUser}
+        password: ~{projectDBSuperUserPassword}
+        encrypted: yes
+        expires: infinity
+        role_attr_flags: SUPERUSER
+    - name: Add ~{projectName} database user
+      postgresql_user:
+        name: ~{projectDBUser}
+        password: ~{projectDBUserPassword}
+        encrypted: yes
+        expires: infinity
+        role_attr_flags: SUPERUSER
+    - name: Add migrations database user
+      postgresql_user:
+        name: ~{projectDBMigrationUser}
+        password: ~{projectDBMigrationUserPassword}
+        encrypted: yes
+        expires: infinity
+        role_attr_flags: SUPERUSER
+    - name: Create database
+      postgresql_db:
+        name: ~{projectDB}
+        encoding: UTF-8
+        owner: ~{projectDBSuperUser}
+        template: template0
+    - name: Add uuid extension
+      postgresql_ext:
+        db: ~{projectDB}
+        name: pgcrypto
