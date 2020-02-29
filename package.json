@@ -4,7 +4,7 @@
   "description": "",
   "author": "~{authorName} <~{authorEmail}>",
   "dependencies": {
-    "jquery": "^3.4.1",
+    "jquery": "^3.4.1"
   },
   "scripts": {
     "update-css": "scripts/update-css.sh"

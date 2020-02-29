@@ -4,6 +4,7 @@
         metosin/reitit {:mvn/version "0.3.1"}
         datascript {:mvn/version "0.18.7"}
         hoplon {:mvn/version "7.2.0"}
+        hoplon/castra {:mvn/version "3.0.0-alpha7"}
         hoplon/javelin {:mvn/version "3.9.0"}
         expound {:mvn/version "0.7.2"}
         aleph {:mvn/version "0.4.7-alpha5"}
